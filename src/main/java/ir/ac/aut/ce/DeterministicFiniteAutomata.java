@@ -13,11 +13,11 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
     private final Map<String, Map<String, String>> transitions;
     private final Set<String> acceptStates;
     private final Set<Character> alphabet;
+    private final String startState;
     private String state;
 
     /**
-     * null is init state and other states are inferred from transition key set and
-     * accepting states
+     * states are inferred from transition key set and accepting states
      * 
      * @param alphabet
      * @param transition
@@ -25,10 +25,12 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
      */
     public DeterministicFiniteAutomata(Set<Character> alphabet,
             Map<String, Map<String, String>> transitions,
-            Set<String> acceptStates) {
+            String startState, Set<String> acceptStates) {
         this.alphabet = Collections.unmodifiableSet(alphabet);
         this.transitions = Collections.unmodifiableMap(transitions);
         this.acceptStates = Collections.unmodifiableSet(acceptStates);
+        this.startState = startState;
+        reset();
     }
 
     @Override
@@ -49,7 +51,7 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
         var inputIterator = input.iterator();
         while (inputIterator.hasNext()) {
             var inputSymbol = String.valueOf(inputIterator.next());
-            if (!transitions.get(state).containsKey(inputSymbol)) {
+            if (transitions.get(state) == null || !transitions.get(state).containsKey(inputSymbol)) {
                 return false;
             }
             state = transitions.get(state).get(inputSymbol);
@@ -69,7 +71,7 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
 
     @Override
     public void reset() {
-        this.state = null;
+        this.state = startState;
     }
 
     @Override
