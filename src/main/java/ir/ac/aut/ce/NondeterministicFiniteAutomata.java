@@ -1,7 +1,7 @@
 package ir.ac.aut.ce;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,6 +41,10 @@ public class NondeterministicFiniteAutomata implements Automaton<String, Charact
     @Override
     public String getState() {
         return state;
+    }
+
+    public Set<String> getPossibleStates() {
+        return Collections.unmodifiableSet(possibleStates);
     }
 
     @Override
@@ -142,6 +146,10 @@ public class NondeterministicFiniteAutomata implements Automaton<String, Charact
     @Override
     public Set<String> getStates() {
         return transitions.keySet();
+    }
+
+    public Set<String> getAcceptStates() {
+        return Collections.unmodifiableSet(acceptStates);
     }
 
     @Override

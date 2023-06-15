@@ -88,6 +88,10 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
         return transitions.keySet();
     }
 
+    public Set<String> getAcceptStates() {
+        return Collections.unmodifiableSet(acceptStates);
+    }
+
     @Override
     public Set<Entry<String, Map<String, String>>> getTransitions() {
         return transitions.entrySet();
