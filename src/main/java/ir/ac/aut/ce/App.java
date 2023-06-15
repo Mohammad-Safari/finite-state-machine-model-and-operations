@@ -37,7 +37,7 @@ class App {
     public static loadedResult loadFromFile(String filename) throws FileNotFoundException {
 
         var file = new File(filename);
-        var scanner = new Scanner(file);
+        var scanner = new Scanner(file, "UTF-8");
         var lineReader = (Supplier<String[]>) () -> scanner.nextLine().split(" ");
 
         // Read the alphabet

@@ -46,6 +46,10 @@ public class DeterministicFiniteAutomata implements Automaton<String, Character>
         this.state = state;
     }
 
+    /**
+     * DFA {@link#processInput} method changes {@link#state} for every input due to its
+     * deterministic characteristic on whole alphabet
+     */
     @Override
     public boolean processInput(Iterable<Character> input) {
         var inputIterator = input.iterator();
