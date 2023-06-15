@@ -34,7 +34,10 @@ public class NFA2DFAConverter {
                 .map(set -> set.stream().collect(Collectors.joining(STATE_COMBINATOR_DELIMITER)))
                 // if any states has no transition on any member of alphabet
                 .forEach(state -> nfa.getAlphabet().stream().map(String::valueOf)
-                        .forEach(sym -> dfaTransitions.get(state).putIfAbsent(sym, TRAP_STATE_NAME)));
+                        .forEach(sym -> {
+                            dfaTransitions.putIfAbsent(state, new HashMap());
+                            dfaTransitions.get(state).putIfAbsent(sym, TRAP_STATE_NAME);
+                        }));
         // if trap state be needed
         for (var tr : dfaTransitions.values()) {
             if (tr.containsValue(TRAP_STATE_NAME)) {
@@ -47,7 +50,8 @@ public class NFA2DFAConverter {
         return new DeterministicFiniteAutomata(
                 nfa.getAlphabet(),
                 dfaTransitions,
-                startState.iterator().next(), // Start state is always the first set processed
+                 // Start state is always the first set processed
+                startState.stream().collect(Collectors.joining(STATE_COMBINATOR_DELIMITER)),
                 dfaAcceptStates);
     }
 
