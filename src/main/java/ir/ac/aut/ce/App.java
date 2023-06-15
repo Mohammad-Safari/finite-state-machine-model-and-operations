@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -16,17 +17,20 @@ class App {
     static class loadedResult {
         Set<Character> alphabet;
         Map<String, Map<String, String>> transitions;
+        Map<String, Map<String, Set<String>>> nondeterministicTransitions;
         String startState;
         Set<String> acceptStates;
 
         loadedResult(Set<Character> alphabet,
                 Map<String, Map<String, String>> transitions,
+                Map<String, Map<String, Set<String>>> nondeterministicTransitions,
                 String startState,
                 Set<String> acceptStates) {
             this.alphabet = alphabet;
             this.transitions = transitions;
             this.startState = startState;
             this.acceptStates = acceptStates;
+            this.nondeterministicTransitions = nondeterministicTransitions;
         }
     }
 
@@ -52,14 +56,24 @@ class App {
         // Read the transition function
         var ltransitions = lstates.stream().collect(
                 Collectors.toMap(Function.identity(), s -> (Map<String, String>) new HashMap<String, String>()));
+        var lntransitions = lstates.stream().collect(
+                Collectors.toMap(Function.identity(),
+                        s -> (Map<String, Set<String>>) new HashMap<String, Set<String>>()));
+
         while (scanner.hasNextLine()) {
             var parts = lineReader.get();
             String fromState = parts[0], inputSymbol = parts[1], toState = parts[2];
             ltransitions.get(fromState).put(inputSymbol, toState);
+            var set = lntransitions.get(fromState).get(inputSymbol);
+            if (set == null) {
+                set = new HashSet<String>();
+                lntransitions.get(fromState).put(inputSymbol, set);
+            }
+            set.add(toState);
         }
 
         scanner.close();
-        return new loadedResult(lalphabet, ltransitions, lstartState, lacceptStates);
+        return new loadedResult(lalphabet, ltransitions, lntransitions, lstartState, lacceptStates);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
