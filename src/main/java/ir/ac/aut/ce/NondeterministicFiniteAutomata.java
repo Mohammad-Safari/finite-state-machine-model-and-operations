@@ -156,4 +156,8 @@ public class NondeterministicFiniteAutomata implements Automaton<String, Charact
     public Set<Entry<String, Map<String, Set<String>>>> getTransitions() {
         return transitions.entrySet();
     }
+
+    public Map<String, Map<String, Set<String>>> getTransitionsMap() {
+        return transitions;
+    }
 }

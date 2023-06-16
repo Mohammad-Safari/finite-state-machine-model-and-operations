@@ -3,7 +3,9 @@ package ir.ac.aut.ce;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import ir.ac.aut.ce.App.loadedResult;
@@ -13,7 +15,7 @@ class AppII {
 
     public static void writeToFile(String filename, loadedResult result) throws IOException {
 
-        var pw = new PrintWriter(new FileWriter(filename));
+        var pw = new PrintWriter(new FileWriter(filename, Charset.forName("UTF-8")));
 
         // Write the alphabet
         var sb1 = new StringBuilder();
@@ -24,9 +26,17 @@ class AppII {
 
         // Write the set of states
         var sb2 = new StringBuilder();
-        var a = result.transitions.values().stream().flatMap(e -> e.values().stream()).collect(Collectors.toSet());
-        a.addAll(result.transitions.keySet());
-        for (var s : a) {
+        Set<String> aggregatedStates;
+        if (result.nondeterministicTransitions == null) {
+            aggregatedStates = result.transitions.values().stream().flatMap(e -> e.values().stream())
+                    .collect(Collectors.toSet());
+            aggregatedStates.addAll(result.transitions.keySet());
+        } else {
+            aggregatedStates = result.nondeterministicTransitions.values().stream().flatMap(e -> e.values().stream())
+                    .collect(Collectors.toSet()).stream().flatMap(Set::stream).collect(Collectors.toSet());
+            aggregatedStates.addAll(result.nondeterministicTransitions.keySet());
+        }
+        for (var s : aggregatedStates) {
             sb2.append(s).append(SPACE_DELIMITER);
         }
         pw.println(sb2.toString().trim());
@@ -41,13 +51,27 @@ class AppII {
         }
         pw.println(sb3.toString().trim());
 
-        for (var entry : result.transitions.entrySet()) {
-            var fromState = entry.getKey();
-            var trans = entry.getValue();
-            for (var t : trans.entrySet()) {
-                var inputSymbol = t.getKey();
-                var toState = t.getValue();
-                pw.println(fromState + SPACE_DELIMITER + inputSymbol + SPACE_DELIMITER + toState);
+        if (result.nondeterministicTransitions == null) {
+            for (var entry : result.transitions.entrySet()) {
+                var fromState = entry.getKey();
+                var trans = entry.getValue();
+                for (var t : trans.entrySet()) {
+                    var inputSymbol = t.getKey();
+                    var toState = t.getValue();
+                    pw.println(fromState + SPACE_DELIMITER + inputSymbol + SPACE_DELIMITER + toState);
+                }
+            }
+        } else {
+            for (var entry : result.nondeterministicTransitions.entrySet()) {
+                var fromState = entry.getKey();
+                var trans = entry.getValue();
+                for (var t : trans.entrySet()) {
+                    var inputSymbol = t.getKey();
+                    var toStateSet = t.getValue();
+                    for (var toState : toStateSet) {
+                        pw.println(fromState + SPACE_DELIMITER + inputSymbol + SPACE_DELIMITER + toState);
+                    }
+                }
             }
         }
 
